@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeMate · 程序员求职多 Agent 陪跑工作台</title>
+<meta name="description" content="CodeMate：JD拆解 / 简历优化 / 模拟面试 / 投递台账，四 Agent 协同的应届生求职陪跑工作台。基于阿里云百炼 · 通义千问 Qwen 构建。">
+<!-- Tailwind CSS（唯一外部依赖，通过 CDN 引入；其余为原生 JS） -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- trae 风格点阵粒子背景（app.js 驱动） -->
+<canvas id="dotCanvas"></canvas>
+
+<!-- ========== 顶部公告条 ========== -->
+<div class="announce topbar">
+  2026 天猫 AI 黑客松 · <b>效率进化赛道 · 阿里云 Qwen 特别赛题</b>｜Agent 0 调度 + 四大执行 Agent 协同 · 通义千问驱动 · 数据全程本地存储
+</div>
+
+<!-- ========== 顶部导航栏 ========== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-logo">&lt;/&gt;</div>
+      <div>
+        <div class="brand-name">CodeMate <em>工作台</em></div>
+        <div class="brand-sub">程序员求职多 Agent 陪跑助手</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="openAISettings()" class="btn btn-ghost !py-2 !px-3 !text-[12px]" title="配置通义千问 Qwen API Key">
+        <span id="aiDot" style="width:7px;height:7px;border-radius:50%;background:#7c7c87;display:inline-block"></span>
+        <span id="aiStateText" class="hidden sm:inline">模拟模式 · 未接入 AI</span>
+        <span class="sm:hidden">AI</span>
+      </button>
+      <button onclick="location.reload()" class="btn btn-ghost !py-2 !px-3.5 !text-[12px]">重置演示</button>
+    </div>
+  </div>
+</header>
+
+<!-- ========== Hero 品牌区（对标 trae 大标题） ========== -->
+<section class="hero">
+  <h1>CodeMate<br><span class="dim">智能求职，协作无间</span></h1>
+  <p>人岗匹配总览先行调度，JD 拆解、简历优化、模拟面试、投递台账四大 Agent 分工协同，
+     陪计算机 / 网络工程 / 数据安全专业的应届生跑赢金九银十。</p>
+  <div class="pulse-dot"><i></i> 5 Agent 在线 · 通义千问 Qwen 驱动 · 访客免填 Key 即用</div>
+  <div class="hero-actions">
+    <button class="btn btn-primary" onclick="runGuide()">一键体验完整演示</button>
+    <button class="btn btn-ghost" onclick="selectModule('m0')">查看人岗匹配</button>
+  </div>
+</section>
+
+<div class="app-shell">
+  <!-- ========== 左侧侧边栏（桌面端） ========== -->
+  <aside class="sidebar">
+    <div class="mb-2 px-2 text-[11px] font-bold uppercase tracking-[.12em] text-[#62626e]">Agent 协同 · 五大模块</div>
+    <div data-nav="m0" class="nav-item active">
+      <span class="nav-ico">🎯</span><span>人岗匹配</span><span class="nav-tag">Agent 0</span>
+    </div>
+    <div data-nav="m1" class="nav-item">
+      <span class="nav-ico">⚙</span><span>JD 解析</span><span class="nav-tag">Agent 1</span>
+    </div>
+    <div data-nav="m2" class="nav-item">
+      <span class="nav-ico">📄</span><span>简历优化</span><span class="nav-tag">Agent 2</span>
+    </div>
+    <div data-nav="m3" class="nav-item">
+      <span class="nav-ico">🎙</span><span>模拟面试</span><span class="nav-tag">Agent 3</span>
+    </div>
+    <div data-nav="m4" class="nav-item">
+      <span class="nav-ico">🗂</span><span>投递台账</span><span class="nav-tag">Agent 4</span>
+    </div>
+
+    <div class="side-card">
+      <div class="online"><i></i> 5 Agent 在线 · Qwen 驱动</div>
+      <div class="agents">
+        <div>⓪ 人岗匹配 <span class="text-[#3df59d]">· 调度中枢</span></div>
+        <div>① JD拆解 <span class="text-[#3df59d]">· 技能图谱</span></div>
+        <div>② 简历优化 <span class="text-emerald-400">· STAR 改写</span></div>
+        <div>③ 技术面试官 <span class="text-amber-400">· 多轮追问</span></div>
+        <div>④ 投递管理 <span class="text-[#2dd4bf]">· 跟进话术</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== 移动端横向 Tabs ========== -->
+  <div class="mobile-tabs">
+    <div data-nav="m0" class="nav-item active">匹配</div>
+    <div data-nav="m1" class="nav-item">JD解析</div>
+    <div data-nav="m2" class="nav-item">简历</div>
+    <div data-nav="m3" class="nav-item">面试</div>
+    <div data-nav="m4" class="nav-item">台账</div>
+  </div>
+
+  <!-- ========== 主内容区 ========== -->
+  <main class="main-col">
+
+    <!-- ===== 模块 0：人岗匹配总览（调度中枢） ===== -->
+    <section id="m0" class="module space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h2 class="module-title">🎯 人岗匹配总览</h2>
+          <p class="module-desc">Agent 0 先行调度：比对目标 JD 与简历，一键生成匹配总分、五维雷达、亮点与风险，并把补强任务派发给四大执行 Agent。</p>
+        </div>
+        <span class="t-badge">AGENT 0</span>
+      </div>
+
+      <!-- 当前素材状态 -->
+      <div class="card p-4">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-lg border border-[#23232a] bg-[#0c0c0f] p-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[12px] font-semibold text-[#3df59d]">⚙ 目标岗位 JD</span>
+              <button class="btn btn-ghost !py-1 !px-2.5 !text-[11px]" onclick="selectModule('m1')">去编辑</button>
+            </div>
+            <div id="ovJdLen" class="mt-1 text-[11.5px] text-[#8a8a96]">尚未填写（评估时将自动载入示例）</div>
+          </div>
+          <div class="rounded-lg border border-[#23232a] bg-[#0c0c0f] p-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[12px] font-semibold text-emerald-400">📄 我的简历</span>
+              <button class="btn btn-ghost !py-1 !px-2.5 !text-[11px]" onclick="selectModule('m2')">去编辑</button>
+            </div>
+            <div id="ovRsLen" class="mt-1 text-[11.5px] text-[#8a8a96]">尚未填写（评估时将自动载入示例）</div>
+          </div>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <button id="ovMatchBtn" class="btn btn-primary" onclick="runMatch()">🎯 生成匹配度</button>
+          <button class="btn btn-ghost" onclick="runGuide()">一键体验完整演示</button>
+        </div>
+      </div>
+
+      <!-- 匹配结果 / 空态 -->
+      <div id="ovResult" class="hidden space-y-4"></div>
+
+      <!-- 效率看板 -->
+      <div class="card p-4">
+        <div id="ovStats"></div>
+      </div>
+    </section>
+
+    <!-- ===== 模块 1：JD 解析与技能诊断 ===== -->
+    <section id="m1" class="module hidden space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h2 class="module-title">⚙ JD 解析与技能诊断</h2>
+          <p class="module-desc">粘贴岗位 JD，Agent 拆解硬技能 / 加分技能 / 隐性要求，量化技能差距并生成分阶段可落地学习路线。</p>
+        </div>
+        <span class="t-badge">AGENT 1</span>
+      </div>
+
+      <div class="card p-4">
+        <label class="label" for="jdInput">岗位 JD 文本</label>
+        <textarea id="jdInput" class="textarea" rows="8"
+          placeholder="在此粘贴目标岗位 JD，例如：&#10;岗位：C++ 后端开发工程师（校招）&#10;1. 熟悉 C/C++、STL、多线程… 2. 了解 Linux 网络编程… 3. 具备系统设计能力…"></textarea>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <button id="jdBtn" class="btn btn-primary" onclick="runJD()">解析 JD</button>
+          <button class="btn btn-ghost" onclick="loadJDExample()">载入示例 JD</button>
+          <button class="btn btn-ghost" onclick="clearJD()">清空</button>
+        </div>
+      </div>
+
+      <div id="jdLoading" class="card hidden p-5">
+        <div class="flex items-center gap-3">
+          <div class="loader-dots"><i></i><i></i><i></i></div>
+          <div class="text-[13px] text-[#8a8a96]">
+            <b class="text-white">JD拆解 Agent</b> 正在解析岗位 · 识别技能矩阵 · 规划学习路线…
+            <span class="hidden sm:inline">（模拟计算中，请稍候）</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="jdResult" class="hidden space-y-4"></div>
+    </section>
+
+    <!-- ===== 模块 2：程序员简历优化实验室 ===== -->
+    <section id="m2" class="module hidden space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h2 class="module-title">程序员简历优化实验室</h2>
+          <p class="module-desc">粘贴教育 / 技能 / 项目经历（或上传截图由 Qwen-VL 识别），简历专家 Skill 按主流招聘平台与 ATS 规范输出五维体检、JD 关键词对齐、句子级精修与一页纸成品简历。</p>
+        </div>
+        <span class="t-badge">AGENT 2</span>
+      </div>
+
+      <div class="card p-4">
+        <label class="label" for="resumeInput">简历内容（教育 / 技能 / 项目经历）</label>
+        <textarea id="resumeInput" class="textarea" rows="10"
+          placeholder="粘贴自己的简历文本，例如：&#10;&#10;教育经历&#10;XX大学 软件工程 本科 2022-2026&#10;&#10;技能&#10;熟悉 Java、Spring Boot、MySQL、Redis&#10;&#10;项目经历&#10;开发了一个校园点餐小程序，负责前后端开发…"></textarea>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <button id="resumeBtn" class="btn btn-primary" onclick="runResume()">AI 优化简历</button>
+          <button class="btn btn-ghost" onclick="loadResumeExample()">载入示例</button>
+          <button class="btn btn-ghost" onclick="clearResume()">清空</button>
+          <span class="mx-1 hidden h-4 w-px bg-[#2a2a32] sm:inline-block"></span>
+          <button id="resumeOcrBtn" type="button" class="btn btn-ghost" onclick="document.getElementById('resumeImgInput').click()">上传简历截图识别（Qwen-VL）</button>
+          <input id="resumeImgInput" type="file" accept="image/*" class="hidden" onchange="recognizeResumeImage(this)">
+        </div>
+        <p class="mt-1.5 text-[11.5px] leading-relaxed text-[#62626e]">支持简历截图 / 拍照（自动压缩），由通义千问 VL 多模态模型识别为文本后填入输入框，再执行 AI 优化；该能力需接入真实 AI。</p>
+      </div>
+
+      <div id="resumeLoading" class="card hidden p-5">
+        <div class="flex items-center gap-3">
+          <div class="loader-dots"><i></i><i></i><i></i></div>
+          <div class="text-[13px] text-[#8a8a96]">
+            <b class="text-white">简历优化 Agent</b> 正在逐条改写项目经历 · 检测风险点…
+          </div>
+        </div>
+      </div>
+
+      <div id="resumeResult" class="hidden space-y-4"></div>
+    </section>
+
+    <!-- ===== 模块 3：多轮技术模拟面试 ===== -->
+    <section id="m3" class="module hidden space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h2 class="module-title">🎙 多轮技术模拟面试</h2>
+          <p class="module-desc">面试官 Agent 结合简历 + JD 自动出题，八股、项目深挖、场景题多轮追问；可开启语音模式，由 Qwen3.5-Omni 全模态模型语音追问、张嘴答题；结束输出三维雷达评分报告。</p>
+        </div>
+        <span class="t-badge">AGENT 3</span>
+      </div>
+
+      <div class="card p-4">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="label" for="roleType">岗位类型</label>
+            <select id="roleType" class="select">
+              <option value="后端开发">后端开发</option>
+              <option value="网络工程">网络工程</option>
+              <option value="小程序开发">小程序开发</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <div class="flex flex-wrap gap-2">
+              <button id="interviewStartBtn" class="btn btn-primary" onclick="startInterview()">开始模拟面试</button>
+              <button class="btn btn-ghost" onclick="loadInterviewExample()">载入示例对话</button>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="label" for="interviewResumeCtx">简历上下文（自动带入 Agent 2 结果 / 示例）</label>
+            <textarea id="interviewResumeCtx" class="textarea" rows="4" placeholder="自动带入简历，也可手动编辑"></textarea>
+          </div>
+          <div>
+            <label class="label" for="interviewJdCtx">目标 JD 上下文</label>
+            <textarea id="interviewJdCtx" class="textarea" rows="4" placeholder="自动带入 Agent 1 解析结果 / 示例"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 聊天区 -->
+      <div id="chatArea" class="card hidden p-4">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2 text-[13px] font-semibold text-amber-400">
+            <span class="avatar" style="background:rgba(251,191,36,.12)">🎙</span> 面试官 Agent · 多轮对话中
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="voiceToggleBtn" class="btn btn-ghost !py-1.5 !px-3 !text-[12px]" onclick="toggleVoiceMode()">🔇 语音模式</button>
+            <button class="btn btn-ghost !py-1.5 !px-3 !text-[12px]" onclick="nextInterviewRound()">下一题</button>
+            <button class="btn btn-primary !py-1.5 !px-3 !text-[12px]" onclick="finishInterview(this)">生成复盘报告</button>
+          </div>
+        </div>
+        <div id="chatBox" class="scroll-slim max-h-[520px] space-y-3 overflow-y-auto pr-1"></div>
+        <div class="mt-3 flex gap-2">
+          <textarea id="userAnswer" class="textarea" rows="3" placeholder="输入你的回答；开启语音模式后可点 🎤 直接张嘴作答…"></textarea>
+          <div class="flex flex-col gap-2 self-end">
+            <button id="micBtn" class="btn btn-ghost hidden whitespace-nowrap" onclick="toggleMic()">🎤 张嘴答题</button>
+            <button class="btn btn-primary h-fit self-end" onclick="submitAnswer()">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="reportArea" class="hidden space-y-4"></div>
+    </section>
+
+    <!-- ===== 模块 4：投递台账管理 ===== -->
+    <section id="m4" class="module hidden space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h2 class="module-title">🗂 投递台账管理</h2>
+          <p class="module-desc">记录投递公司 / 岗位 / 状态，Agent 4 按当前状态生成定制跟进邮件话术，支持导出求职复盘记录。</p>
+        </div>
+        <span class="t-badge">AGENT 4</span>
+      </div>
+
+      <!-- P2：逾期自动提醒（renderRecords 时刷新） -->
+      <div id="overdueBanner" class="hidden"></div>
+
+      <div class="card p-4">
+        <label class="label">新增投递</label>
+        <div class="grid gap-3 sm:grid-cols-4">
+          <input id="compName" class="input" placeholder="公司名称">
+          <input id="compRole" class="input" placeholder="岗位名称">
+          <input id="compDate" class="input" type="date">
+          <select id="compStatus" class="select">
+            <option value="待回复">待回复</option>
+            <option value="笔试">笔试</option>
+            <option value="面试">面试</option>
+            <option value="拒信">拒信</option>
+            <option value="offer">Offer</option>
+          </select>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button class="btn btn-primary" onclick="addRecord()">＋ 添加记录</button>
+          <button class="btn btn-ghost" onclick="loadRecordExample()">载入示例记录</button>
+          <button class="btn btn-ghost" onclick="exportTally()">导出求职复盘文本</button>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <h3 class="text-[13px] font-bold">投递列表 <span id="recordCount" class="font-normal text-[#8a8a96]">(0)</span></h3>
+          <button class="btn btn-ghost !py-1 !px-2.5 !text-[11px]" onclick="clearAllRecords()">清空全部</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="tbl">
+            <thead><tr>
+              <th>状态</th><th>公司</th><th>岗位</th><th>投递日期</th><th class="text-right">操作</th>
+            </tr></thead>
+            <tbody id="recordTbody"></tbody>
+          </table>
+          <div id="recordEmpty" class="py-10 text-center text-[13px] text-[#62626e]">暂无投递记录，点击「载入示例记录」体验。</div>
+        </div>
+      </div>
+
+      <!-- P2：一键导出（可导入千问办公 / WPS / Office） -->
+      <div class="card p-4">
+        <div class="mb-1 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[#3df59d]">
+          📤 一键导出 · 求职冲刺材料
+        </div>
+        <p class="mb-3 text-[11.5px] leading-relaxed text-[#8a8a96]">
+          汇总匹配体检、简历五维、关键词、面试评分、投递漏斗与行动清单，一键生成可直接导入 <b class="text-[#b6b6c2]">千问办公</b> / WPS / Office 的材料。
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button class="btn btn-primary" onclick="exportSprintReport()">📄 导出冲刺复盘报告（可另存 PDF）</button>
+          <button class="btn btn-primary" onclick="exportSprintPPT(this)">📊 导出求职冲刺 PPT（.pptx）</button>
+        </div>
+      </div>
+
+      <!-- P2：Agent 工具调用（MCP 风格）· 面试日程 / 考点路线 -->
+      <div class="card p-4">
+        <div class="mb-1 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[#3df59d]">
+          🔌 调度 Agent · 工具调用
+        </div>
+        <p class="mb-3 text-[11.5px] leading-relaxed text-[#8a8a96]">
+          Agent 通过 Function Calling 自主调用本地工具：自动建立面试日程（可导出 .ics 加入手机日历，提前 30 分钟提醒）并生成考点导航路线。
+        </p>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <input id="toolCompany" class="input" placeholder="面试公司（必填）">
+          <input id="toolRole" class="input" placeholder="应聘岗位（选填）">
+          <input id="toolDatetime" class="input" type="datetime-local">
+          <input id="toolAddress" class="input" placeholder="考点地址（如：杭州市余杭区文一西路 969 号）">
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-primary" onclick="runAgentTools(this)">🤖 让 Agent 安排面试日程与路线</button>
+        </div>
+        <div id="toolResult" class="mt-3 hidden space-y-3"></div>
+      </div>
+
+      <div class="card p-4">
+        <div class="mb-3 text-[13px] font-bold">📅 我的面试日程</div>
+        <div id="scheduleList" class="space-y-2"></div>
+      </div>
+
+      <div id="mailArea" class="hidden space-y-4"></div>
+    </section>
+
+    <!-- ========== 底部使用说明 ========== -->
+    <footer class="card mt-6 p-5">
+      <div class="text-[13px] font-bold">🧭 使用说明</div>
+      <ul class="footer-note mt-2 list-none space-y-1 pl-0">
+        <li>· ⓪ 「人岗匹配」一键生成匹配总分 / 五维雷达 / 亮点风险，或直接点 Hero 区「🚀 一键体验完整演示」自动串联全流程。</li>
+        <li>· ① 「JD解析」粘贴岗位描述 → 点击「解析 JD」，查看技能雷达与学习路线。</li>
+        <li>· ② 「简历优化」粘贴简历（支持上传截图由 Qwen-VL 识别）→ 点击「AI 优化简历」，获得 STAR 改写建议与可复制的 Markdown 简历。</li>
+        <li>· ③ 「模拟面试」选择岗位 → 点击「开始」，与面试官流式多轮对话，完成后点「生成复盘报告」。</li>
+        <li>· ④ 「投递台账」登记公司与状态，选中某条记录生成跟进邮件话术，可一键导出复盘。</li>
+        <li>· 全部数据保存在本地浏览器（localStorage），刷新不丢失；云端 AI 不可用时自动回退 <b class="text-[#3df59d]">本地模拟 Agent</b>，可随时重置。</li>
+      </ul>
+      <div class="footer-meta">
+        本作品基于 <b class="text-white">阿里云百炼 · 通义千问 Qwen</b> 构建 · 面向计算机 / 网络工程 / 数据安全专业应届生与实习生 ·
+        助力 <b class="text-amber-400">2026 天猫 AI 黑客松 · 效率进化赛道</b>。CodeMate 工作台 · 数据仅存于本机，安全无痕。
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- ========== AI 设置弹窗 ========== -->
+<div id="aiModal" class="modal-mask hidden" onclick="if(event.target===this)closeAISettings()">
+  <div class="modal-box">
+    <div class="flex items-start justify-between">
+      <div>
+        <div class="text-[15px] font-extrabold">接入真实 AI · 通义千问 Qwen</div>
+        <div class="text-[12px] text-[#8a8a96]">配置后，JD 解析 / 简历优化 / 模拟面试 / 邮件话术将由阿里云百炼上的通义千问模型基于你输入的真实内容生成。部署到云端后访客可免填 Key。</div>
+      </div>
+      <button class="btn btn-ghost !py-1 !px-2.5 !text-[13px]" onclick="closeAISettings()">✕</button>
+    </div>
+
+    <div class="mt-4">
+      <label class="label" for="aiKeyInput">自有百炼 API Key（可选；已部署云端代理时无需填写）</label>
+      <input id="aiKeyInput" type="password" class="input" placeholder="阿里云百炼 sk- 开头；留空则自动使用云端代理（如已配置）">
+    </div>
+    <div class="mt-3">
+      <label class="label" for="aiModelSelect">模型（仅自有 Key 直连时生效；云端代理由部署环境指定）</label>
+      <select id="aiModelSelect" class="select">
+        <option value="qwen-plus">通义千问 Plus（qwen-plus · 效果 / 速度均衡，推荐）</option>
+        <option value="qwen-turbo">通义千问 Turbo（qwen-turbo · 最快最省，适合高频对话）</option>
+        <option value="qwen-max">通义千问 Max（qwen-max · 最强能力，较慢）</option>
+      </select>
+    </div>
+
+    <div id="aiProxyNote" class="mt-3 hidden rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-3 text-[11.5px] leading-relaxed text-emerald-300"></div>
+
+    <div class="mt-3 rounded-lg border border-[#3a3320] bg-[#161207] p-3 text-[11.5px] leading-relaxed text-[#b6b6c2]">
+      🔒 两种接入方式：① <b class="text-white">云端代理</b>（推荐）：在 Netlify 环境变量配置
+      <span class="text-[#8ff5c8]">DASHSCOPE_API_KEY</span>（阿里云百炼控制台获取），Key 永不下发浏览器，访客打开即用；
+      ② <b class="text-white">自有 Key</b>：仅保存在你本机 localStorage，浏览器直连百炼官方接口。
+      Key 一旦在聊天/公开渠道发送过，建议尽快到 bailian.console.aliyun.com 重置。
+    </div>
+
+    <div id="aiTestResult" class="mt-3 min-h-[18px] text-[12px]"></div>
+
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+      <button class="btn btn-ghost !py-2 !text-[12px] !text-[#f87171]" onclick="AI.clear();$('aiKeyInput').value='';$('aiTestResult').textContent='已清除自有 Key（如有云端代理将自动启用）';">清除自有 Key</button>
+      <div class="flex gap-2">
+        <button class="btn btn-ghost !py-2 !text-[12px]" onclick="testAIKey()">测试连接</button>
+        <button class="btn btn-primary !py-2 !text-[12px]" onclick="saveAISettings()">保存并启用</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 脚本：按依赖顺序加载（原生 JS，无需构建） ========== -->
+<script src="js/utils.js"></script>
+<script src="js/demo-data.js"></script>
+<script src="js/ai-client.js"></script>
+<script src="js/agent-overview.js"></script>
+<script src="js/agent-jd.js"></script>
+<script src="js/skill-resume.js"></script>
+<script src="js/agent-resume.js"></script>
+<script src="js/agent-interview.js"></script>
+<script src="js/agent-voice.js"></script>
+<script src="js/agent-tally.js"></script>
+<script src="js/agent-tools.js"></script>
+<script src="js/agent-export.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

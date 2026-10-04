@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#070809; }
+  .stage {
+    position:absolute; left:50%; top:50%; width:1280px; height:720px;
+    transform:translate(-50%,-50%) scale(var(--s,1));
+    transform-origin:center center;
+    background:
+      radial-gradient(1100px 620px at 78% 42%, rgba(61,245,157,.10), transparent 62%),
+      radial-gradient(700px 500px at 12% 110%, rgba(61,245,157,.06), transparent 60%),
+      #070809;
+    font-family: "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    color:#fff;
+  }
+  /* 背景网格 */
+  .grid {
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image: radial-gradient(1200px 700px at 60% 45%, #000 55%, transparent 100%);
+  }
+  /* 四角 HUD */
+  .corner { position:absolute; width:26px; height:26px; border:2px solid #3df59d; opacity:.85; }
+  .c-tl { top:34px; left:34px; border-right:none; border-bottom:none; }
+  .c-tr { top:34px; right:34px; border-left:none; border-bottom:none; }
+  .c-bl { bottom:34px; left:34px; border-right:none; border-top:none; }
+  .c-br { bottom:34px; right:34px; border-left:none; border-top:none; }
+
+  .topbar { position:absolute; top:40px; left:74px; right:74px; display:flex; justify-content:space-between; align-items:center; }
+  .topbar .kicker { font-size:13px; letter-spacing:4px; color:#9aa4a8; font-weight:600; }
+  .topbar .track { font-size:13px; letter-spacing:3px; color:#3df59d; font-weight:700; }
+
+  /* 左侧文案 */
+  .copy { position:absolute; left:74px; top:196px; width:560px; }
+  .tag { display:inline-block; font-size:13px; letter-spacing:6px; color:#3df59d; font-weight:700;
+         border:1px solid rgba(61,245,157,.55); padding:7px 14px 6px 20px; border-radius:2px; margin-bottom:26px; }
+  h1 { font-size:108px; line-height:.95; font-weight:800; letter-spacing:-2px; }
+  h1 .m { color:#3df59d; }
+  .sub { margin-top:18px; font-size:30px; letter-spacing:14px; font-weight:600; color:#e8ecee; }
+  .rule { width:96px; height:5px; background:#3df59d; margin:24px 0 20px; }
+  .desc { font-size:16px; line-height:1.85; color:#9aa4a8; width:470px; }
+  .desc b { color:#dfe6e8; font-weight:600; }
+  .chips { margin-top:24px; display:flex; gap:10px; flex-wrap:nowrap; width:660px; }
+  .chip { font-size:12.5px; color:#c8d0d3; border:1px solid rgba(255,255,255,.16);
+          padding:6px 13px; border-radius:999px; letter-spacing:1px; }
+  .chip.hot { color:#070809; background:#3df59d; border-color:#3df59d; font-weight:700; }
+
+  /* 右侧图形 */
+  .orbit { position:absolute; right:40px; top:96px; width:600px; height:600px; }
+  svg { display:block; }
+
+  .bottom { position:absolute; bottom:44px; left:74px; right:74px; display:flex; justify-content:space-between; align-items:center; }
+  .stats { display:flex; gap:34px; }
+  .stat .n { font-size:22px; font-weight:800; color:#3df59d; font-variant-numeric:tabular-nums; }
+  .stat .l { font-size:11.5px; color:#7e888c; letter-spacing:2px; margin-top:3px; }
+  .power { font-size:12px; letter-spacing:3px; color:#5c666a; }
+
+  /* 自适应窗口：始终完整显示整张封面 */
+  .stage { --s:1; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="grid"></div>
+  <div class="corner c-tl"></div><div class="corner c-tr"></div>
+  <div class="corner c-bl"></div><div class="corner c-br"></div>
+
+  <div class="topbar">
+    <div class="kicker">CODEMATE · AI JOB-HUNTING COPILOT</div>
+  </div>
+
+  <div class="copy">
+    <span class="tag">多 AGENT 协作 · 求职全流程</span>
+    <h1>Code<span class="m">Mate</span></h1>
+    <div class="sub">求职工作台</div>
+    <div class="rule"></div>
+    <div class="desc">
+      五个 AI Agent 接管求职全链路：人岗匹配、简历精修、语音面试、投递跟进、复盘导出。
+      <b>每条简历改写可溯源，AI 不编造一个字</b>；张嘴即答的全模态面试官；打开网页，零配置即用。
+    </div>
+    <div class="chips">
+      <span class="chip hot">零 KEY 即开即用</span>
+      <span class="chip">Qwen3.5-Omni 语音</span>
+      <span class="chip">事实接地防幻觉</span>
+      <span class="chip">Function Calling</span>
+    </div>
+  </div>
+
+  <div class="orbit">
+    <svg width="600" height="600" viewBox="0 0 600 600" fill="none">
+      <defs>
+        <radialGradient id="core" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#3df59d" stop-opacity=".35"/>
+          <stop offset="100%" stop-color="#3df59d" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- 轨道圆 -->
+      <circle cx="300" cy="300" r="150" stroke="rgba(61,245,157,.18)" stroke-width="1" stroke-dasharray="3 7"/>
+      <circle cx="300" cy="300" r="235" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+      <!-- 雷达五维 -->
+      <g stroke="rgba(61,245,157,.28)" stroke-width="1.2" opacity=".75">
+        <polygon points="300,205 390,270 356,376 244,376 210,270"/>
+        <polygon points="300,237 360,280 337,351 263,351 240,280" opacity=".5"/>
+      </g>
+      <polygon points="300,218 372,272 340,360 258,362 232,278" fill="rgba(61,245,157,.14)" stroke="#3df59d" stroke-width="1.6" filter="url(#glow)"/>
+      <line x1="300" y1="300" x2="300" y2="205" stroke="rgba(255,255,255,.10)"/>
+      <line x1="300" y1="300" x2="390" y2="270" stroke="rgba(255,255,255,.10)"/>
+      <line x1="300" y1="300" x2="356" y2="376" stroke="rgba(255,255,255,.10)"/>
+      <line x1="300" y1="300" x2="244" y2="376" stroke="rgba(255,255,255,.10)"/>
+      <line x1="300" y1="300" x2="210" y2="270" stroke="rgba(255,255,255,.10)"/>
+
+      <!-- 中心 -->
+      <circle cx="300" cy="300" r="95" fill="url(#core)"/>
+      <rect x="258" y="262" width="84" height="100" rx="8" fill="#0c0f10" stroke="#3df59d" stroke-width="1.8" filter="url(#glow)"/>
+      <line x1="272" y1="284" x2="328" y2="284" stroke="#3df59d" stroke-width="3" stroke-linecap="round"/>
+      <line x1="272" y1="302" x2="328" y2="302" stroke="rgba(255,255,255,.45)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="272" y1="318" x2="316" y2="318" stroke="rgba(255,255,255,.45)" stroke-width="2.5" stroke-linecap="round"/>
+      <rect x="270" y="332" width="14" height="14" rx="3" fill="none" stroke="#3df59d" stroke-width="1.6"/>
+      <path d="M273 339 l3 3 l6 -7" stroke="#3df59d" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+      <!-- 连线 -->
+      <g stroke="rgba(61,245,157,.45)" stroke-width="1.4">
+        <line x1="300" y1="300" x2="300" y2="118"/>
+        <line x1="300" y1="300" x2="473" y2="244"/>
+        <line x1="300" y1="300" x2="407" y2="450"/>
+        <line x1="300" y1="300" x2="193" y2="450"/>
+        <line x1="300" y1="300" x2="127" y2="244"/>
+      </g>
+
+      <!-- 五个节点 -->
+      <g filter="url(#glow)">
+        <circle cx="300" cy="118" r="13" fill="#3df59d"/>
+        <circle cx="473" cy="244" r="13" fill="#3df59d"/>
+        <circle cx="407" cy="450" r="13" fill="#3df59d"/>
+        <circle cx="193" cy="450" r="13" fill="#3df59d"/>
+        <circle cx="127" cy="244" r="13" fill="#3df59d"/>
+      </g>
+      <g fill="#070809" font-size="12" font-weight="800" text-anchor="middle" font-family="Segoe UI">
+        <text x="300" y="123">01</text><text x="473" y="249">02</text>
+        <text x="407" y="455">03</text><text x="193" y="455">04</text><text x="127" y="249">05</text>
+      </g>
+      <g fill="#e8ecee" font-size="15" font-weight="700" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei">
+        <text x="300" y="86">人岗匹配</text>
+        <text x="502" y="236">简历精修</text>
+        <text x="407" y="488">语音面试</text>
+        <text x="193" y="488">投递台账</text>
+        <text x="98" y="236">复盘导出</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="bottom">
+    <div class="stats">
+      <div class="stat"><div class="n">5</div><div class="l">AGENT 协同</div></div>
+      <div class="stat"><div class="n">24KHz</div><div class="l">全模态语音</div></div>
+      <div class="stat"><div class="n">100%</div><div class="l">改写可溯源</div></div>
+      <div class="stat"><div class="n">0</div><div class="l">配置 · 打开即用</div></div>
+    </div>
+    <div class="power">POWERED BY QWEN · 阿里云百炼</div>
+  </div>
+</div>
+<script>
+  // 按窗口等比缩放，保证整张 1280×720 封面完整可见
+  function fit() {
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    document.querySelector('.stage').style.setProperty('--s', s);
+  }
+  window.addEventListener('resize', fit);
+  fit();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+.git
+.trae
+node_modules
+*.log
+_cover.html
+桌面

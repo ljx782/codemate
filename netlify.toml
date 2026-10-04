@@ -1,0 +1,18 @@
+# =====================================================================
+# CodeMate · Netlify 部署配置（静态站点 + Functions 代理）
+# 部署方式：Netlify 站点关联本仓库/文件夹即可，无需构建命令。
+# 发布后在 Site settings → Environment variables 中配置：
+#   DASHSCOPE_API_KEY = sk-xxxx（阿里云百炼 API Key，必填）
+#   QWEN_MODEL        = qwen-plus（可选：qwen-plus / qwen-turbo / qwen-max）
+# 未配置环境变量时，云函数内的 FALLBACK_KEY 也可让演示开箱即用。
+# =====================================================================
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# 将前端同源路径 /api/qwen 重写到云函数（保留请求方法与请求体）
+[[redirects]]
+  from = "/api/qwen"
+  to = "/.netlify/functions/qwen"
+  status = 200
